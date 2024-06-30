@@ -16,6 +16,33 @@
       color: #222;
     }
 
+/* logo */
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.blog-logo {
+  height: 40px; /* Adjust the size of the image */
+  width: auto;
+  margin-right: 10px; /* Adjust the space between the image and the title */
+}
+
+.site-title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.site-title h1 {
+  margin: 0;
+}
+
+.site-title p {
+  margin: 0;
+}
+
     /* nav & footer styles */
     nav{
       display: flex;

@@ -3,28 +3,33 @@ const mongoose = require('mongoose')
 const bodyParser = require('body-parser');
 const blogRoutes = require('./routes/blogRoutes')
 const controller = require('./controllers/blogController')
+const path = require('path');
+const { userRegisterValidate, userLoginValidate } = require('./utils/userValidation.js');
+const ensureAuthenticated = require('./utils/auth.js');
+require('dotenv').config();
+require('./config/db.js');
 
 const app = express()
 
-const port = 8080;
+const port = process.env.PORT || 8080;
 
+// database connection is in db.js
 //connect to mongodb
-const uri = "mongodb+srv://apeddi:abhi1993@anudb.thmowva.mongodb.net/?retryWrites=true&w=majority&appName=anudb";
-
+// const uri = "mongodb+srv://apeddi:abhi1993@anudb.thmowva.mongodb.net/?retryWrites=true&w=majority&appName=anudb";
 // Connect to MongoDB using async/await
-async function connectToMongoDB() {
-    try {
-      await mongoose.connect(uri);
-      console.log('Connected to MongoDB');
-    } catch (err) {
-      console.error('Failed to connect to MongoDB:', err);
-    }
-  }
-  
-  connectToMongoDB();
+// async function connectToMongoDB() {
+//     try {
+//       await mongoose.connect(uri);
+//       console.log('Connected to MongoDB');
+//     } catch (err) {
+//       console.error('Failed to connect to MongoDB:', err);
+//     }
+//   } 
+// connectToMongoDB();
 
 
 //register view engine
+
 app.set('view engine', 'ejs')
 
 //mongoose and mongo sandbox routes
@@ -81,9 +86,23 @@ app.get('/about', (req, res) => {
 });
 
 //blog route
-app.use('/blogs', blogRoutes)
+app.use('/blogs', blogRoutes);
 
 app.get('/create', controller.blog_create_get);
+
+app.post('/signup', userRegisterValidate , controller.blog_signup)
+
+app.get('/signup', (req, res) => {
+  res.render('blogs/signup', { title : 'signup'})
+});
+
+app.post('/login', userLoginValidate , controller.blog_login)
+
+app.get('/login', (req, res) => {
+  res.render('blogs/login', { title : 'create a new blog'})
+});
+
+app.get('/users', ensureAuthenticated ,controller.get_users);
 
 app.use((req, res)=>{
     res.status(404).render('404', { title : '404'})

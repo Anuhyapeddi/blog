@@ -1,5 +1,8 @@
 
 const Blog = require('../models/blog');
+const Signup = require('../models/signup');
+const bcrypt = require('bcrypt')
+const jwt = require('jsonwebtoken')
 
 // blog_index, blog_details, blog_create_get, blog_create_post, blog_delete
 
@@ -63,11 +66,86 @@ const blog_delete = async (req, res) => {
     }
   }
 
+const blog_signup = async (req, res) => {
+
+  // validate req.body
+  // create mongoDB loginModel
+  // do password encryption
+  // save data to the mongodb 
+  // create a response to the client
+  
+  const signUp = new Signup(req.body);
+  signUp.password = await bcrypt.hash(req.body.password, 10);
+  try{
+    const response = await signUp.save();
+    response.password = undefined
+    return res.status(201).json({message: 'success', data: response})
+  } catch(err) {
+    return res.status(500).json({message: 'error', err: err})
+  }
+  
+};
+
+const blog_login = async (req, res) => {
+
+  //check the email in the data & formate
+  // compare the password
+  // create jwt token
+  // send the response back to the client
+
+  try {
+    const user = await Signup.findOne({email : req.body.email});
+    if (!user) {
+        return res.status(401)
+          .json({message: 'auth failed, Invaild username/passswod'});
+    }
+
+    const isPassEqual = await bcrypt.compare(req.body.password, user.password);
+    if (!isPassEqual) {
+      return res.status(401)
+        .json({message: 'auth failed, Invaild username/passswod'});
+    }
+
+    const tokenObject = {
+      _id: user._id,
+      fullname: user.fullname,
+      email: user.email
+    }
+    
+    const jwtToken = jwt.sign(tokenObject, process.env.SECRET, { expiresIn : '4h' })
+    return res.status(200)
+      .json({jwtToken, tokenObject});
+
+  } catch (err) {
+    return res.status(500).json({message: 'error', err: err})
+  }
+
+};
+
+const get_users = async (req, res) => {
+  try {
+    const users = await Signup.find();
+    return res.status(200)
+      .json({data: users})
+
+  } catch(err) {
+    return res.status(500)
+      .json({message: 'error', err});
+  }
+ 
+
+
+};
+
+
 
 module.exports = {
     blog_index,
     blog_details,
     blog_create_get,
     blog_create_post,
-    blog_delete
+    blog_delete,
+    blog_signup, 
+    blog_login,
+    get_users
 }
