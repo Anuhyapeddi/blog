@@ -2,7 +2,7 @@ For use in your local systems:
 
 Step 1: npm i (installing all the node modules)
 
-Step2: add a .env file and give a database connection. Don't forget to add PORT, SECRET, and MONGO_URL. 
+Step2: add a .env file and give a database connection. Don't forget to add your PORT, SECRET, and MONGO_URL. 
 
 Step3: nodemon (after doing the above steps, just run the command)
 
